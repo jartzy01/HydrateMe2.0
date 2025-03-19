@@ -13,20 +13,22 @@ class Users{
 
     private var email: String
     private var userId: Int
-    private var firstName: String
-    private var lastName: String
+    private var name: String
     private var password: String
+    private var gender: String
+    private var hydrationGoal: Double
     private var hydrationHistory: [HydrationRecord]
     private var rewards: [Rewards]
     private var reminders: [Reminders]
     
-    public init(firstName: String, lastName: String, email: String ,password: String) {
+    public init(name: String, email: String ,password: String, gender: String, hydrationGoal: Double) {
         Users.currentUserId += 100
         self.userId = Users.currentUserId
         self.email = email
-        self.firstName = firstName
-        self.lastName = lastName
+        self.name = name
         self.password = password
+        self.gender = gender
+        self.hydrationGoal = hydrationGoal
         self.hydrationHistory = []
         self.rewards = []
         self.reminders = []
@@ -41,20 +43,12 @@ class Users{
         self.userId = Users.currentUserId
     }
     
-    public func geFirstName() -> String {
-        return firstName
+    public func getName() -> String {
+        return name
     }
     
-    public func setFirstName(_ firstName: String) {
-        self.firstName = firstName
-    }
-    
-    public func geLastName() -> String {
-        return lastName
-    }
-    
-    public func setLastName(_ lastName: String) {
-        self.lastName = lastName
+    public func setName(_ name: String) {
+        self.name = name
     }
 
     public func getEmail() -> String {
@@ -73,13 +67,21 @@ class Users{
         self.password = password
     }
     
-    public func isValidPassword(_ password: String) -> Bool {
+    public func getGender() -> String {
+        return gender
+    }
+    
+    public func setGender(_ gender: String) {
+        self.gender = gender
+    }
+    
+    private func isValidPassword(_ password: String) -> Bool {
         let regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"
         let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
         return predicate.evaluate(with: password)
     }
 
-    public func isValidEmail(_ email: String) -> Bool {
+    private func isValidEmail(_ email: String) -> Bool {
         let regex = #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
         let predicate = NSPredicate(format: "SELF MATCHES[c] %@", regex)
         return predicate.evaluate(with: email)
