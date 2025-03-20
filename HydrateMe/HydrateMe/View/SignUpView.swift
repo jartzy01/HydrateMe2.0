@@ -10,7 +10,13 @@ import SwiftUI
 struct SignUpView: View {
     var body: some View {
         VStack(alignment: .center){
-            Text("twst")
+            VStack(alignment: .center){
+                
+            }
+            .padding()
+            .background(.red)
+            .border(.blue, width: 5)
+            .cornerRadius(20)
         }
         .background(
             Image("underwater")
