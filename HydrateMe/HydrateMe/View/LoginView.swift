@@ -16,31 +16,66 @@ struct LoginView: View {
     @State private var isLoggedIn = false
     @State private var errorMsg = ""
     @State private var alert = false
-    
     var body: some View {
         VStack(alignment: .center){
-            
             Text("HydrateMe")
+                .font(.lifeSaverbold)
+                .padding(.top, 11.0)
+                .foregroundColor(Color("titleblue"))
+            HStack{
+                Spacer()
+                Text("Powered by")
+                    .foregroundColor(Color("titleblue"))
+                    .font(.system(size: 14))
+                Text("H2O")
+                    .font(.chelaone)
+                    .foregroundColor(Color("titleblue"))
+                Spacer()
+                    .frame(width: 40.0)
+            }
+            .padding(.top, -45.0)
+            Spacer()
             RoundedRectangle(cornerRadius: 40)
-                .fill(Color(hex:"015089").opacity(50))
-                .frame(height: 300)
+                .padding(.bottom, -34.0)
+                .foregroundColor(Color("login"))
+                .frame(height: 440.0)
                 .frame(maxWidth: .infinity)
+                .ignoresSafeArea(.all)
                 .overlay(
                     VStack(alignment: .center){
+                        Text("Login")
+                            .font(.lifeSaver)
+                            .fontWeight(.bold)
+                            .padding(.top, 40.0)
+                            .foregroundColor(Color("textcolor"))
+                        Spacer()
+                            .frame(height: 34.0)
                         TextField("Email", text: $email)
                             .padding()
-                            .frame(width: 299.0)
-                            .background(Color.white) // Add white background
-                            .cornerRadius(8) // Optional for rounded edges
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        
+                            .frame(width: 300.0, height: 60.0)
+                            .background(Color("textboxblue"))
+                            .cornerRadius(8)
+                        Spacer()
+                            .frame(height: 18.0)
                         TextField("Password", text: $password)
                             .padding()
-                            .frame(width: 299.0)
-                            .background(Color.white) // Add white background
-                            .cornerRadius(8) // Optional for rounded edges
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        
+                            .frame(width: 300.0, height: 60.0)
+                            .background(Color("textboxblue"))
+                            .foregroundStyle(Color("textcolor"))
+                            .cornerRadius(8)
+                        Spacer()
+                            .frame(height: 18.0)
+                        NavigationLink(destination: ForgotPasswordView()){
+                            HStack{
+                                Text("Forgot Password?")
+                                    .font(.system(size: 17))
+                                    .foregroundStyle(Color("textcolor"))
+                                    .padding(.leading, 75.0)
+                                Spacer()
+                            }
+                        }
+                        Spacer()
+                            .frame(height: 30.0)
                         Button(action: {
                             if !email.isEmpty && !password.isEmpty && !isPasswordValid && !isEmailValid {
                                 FirebaseModel.shared.signIn(email: email, password: password) { result in
@@ -55,9 +90,23 @@ struct LoginView: View {
                                 errorMsg = "Please enter both email and password"
                             }
                         }) {
-                            Text("Sign In")
-                            //CSS
+                            Image("water 2")
+                                .resizable()
+                                .frame(width: 79, height: 79)
                         }
+                        Spacer()
+                            .frame(height: 30.0)
+                        HStack{
+                            Text("Don't have an account?")
+                                .font(.system(size: 17))
+                                .foregroundStyle(Color("anotherblue"))
+                            NavigationLink(destination: SignUpView()){
+                                Text("Sign Up")
+                                    .font(.system(size: 17))
+                                    .foregroundStyle(Color("textcolor"))
+                            }
+                        }
+                        
                     }
                 )
         }
