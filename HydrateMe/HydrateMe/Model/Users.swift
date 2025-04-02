@@ -8,23 +8,20 @@
 import Foundation
 
 class Users{
-    static var currentUserId = 0
-    static var userNum = currentUserId / 100
-    private var fistName: String
-    private var lastName: String
-    private var email: String
-    private var userId: Int
-    private var password: String
-    private var hydrationGoal: Double
-    private var hydrationHistory: [HydrationRecord]
-    private var rewards: [Rewards]
-    private var reminders: [Reminders]
+    var userId: String
+    public var firstName: String
+    public var lastName: String
+    public var email: String
+    public var password: String
+    public var hydrationGoal: Double
+    public var hydrationHistory: [HydrationRecord]
+    public var rewards: [Rewards]
+    public var reminders: [Reminders]
     
     public init(firstName: String, lastName: String, email: String ,password: String) {
-        Users.currentUserId += 100
-        self.userId = Users.currentUserId
+        self.userId = ""
         self.email = email
-        self.fistName = firstName
+        self.firstName = firstName
         self.lastName = lastName
         self.password = password
         self.hydrationGoal = 0
@@ -33,21 +30,20 @@ class Users{
         self.reminders = []
     }
     
-    public func getUserId() -> Int {
+    public func getUserId() -> String {
         return userId
     }
     
-    public func setUserId(_ userId: Int) {
-        Users.currentUserId += 100
-        self.userId = Users.currentUserId
+    public func setUserId(_ userId: String) {
+        self.userId = userId
     }
     
     public func getFirstName() -> String {
-        return fistName
+        return firstName
     }
 
     public func setFirstName(_ firstName: String)  {
-        self.fistName = firstName
+        self.firstName = firstName
     }
     
     public func getLastName() -> String {
