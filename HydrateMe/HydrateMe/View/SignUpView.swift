@@ -24,76 +24,106 @@ struct SignUpView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .center) {
-                
-                Text("Create Account")
-                //CSS
-                
-                VStack(alignment: .center){
-                    Text("Personal Information")
-                    //CSS
-                    TextField("First Name", text: $firstName)
-                    TextField("Last Name", text: $lastName)
-                    
-                    TextField("Email", text: $email)
-                        .onChange(of: email) { newValue in
-                            isEmailValid = isValidEmail(newValue)
-                            errorMsg = isEmailValid ? "" : "Please enter a valid email address."
-                            alert = !isEmailValid
-                        }
-                }
-    
-                VStack(alignment: .center) {
-                    Text("Create a password")
-                    //CSS
-                    SecureField("Password", text: $password)
-                        .onChange(of: password) { newValue in
-                            isPasswordValid = isValidPassword(newValue)
-                            alert = !isPasswordValid
-                        }
-                    
-                    SecureField("Confirm Password", text: $conPassword)
-                        .onChange(of: conPassword) { newValue in
-                            matchingPsw = isSimilarPsw(password,newValue)
-                            if !matchingPsw {
-                                errorMsg = "Password does not match"
-                            } else {
-                                errorMsg = ""
+                RoundedRectangle(cornerRadius: 45)
+                    .padding(.bottom, -24.0)
+                    .foregroundColor(Color("login"))
+                    .frame(width: 380.0, height: 770.0)
+                    .overlay(
+                        VStack{
+                            Text("Create Account")
+                                .font(.lifeSaver)
+                                .fontWeight(.bold)
+                                .padding(.top, 40.0)
+                                .foregroundColor(Color("textcolor"))
+                            
+                            VStack(alignment: .center){
+                                Text("Personal Information")
+                                //CSS
+                                TextField("First Name", text: $firstName)
+                                    .frame(width: 300.0, height: 60.0)
+                                    .background(Color("textboxblue"))
+                                    .cornerRadius(8)
+                                TextField("Last Name", text: $lastName)
+                                    .padding()
+                                    .frame(width: 300.0, height: 60.0)
+                                    .background(Color("textboxblue"))
+                                    .cornerRadius(8)
+                                
+                                TextField("Email", text: $email)
+                                    .onChange(of: email) { newValue in
+                                        isEmailValid = isValidEmail(newValue)
+                                        errorMsg = isEmailValid ? "" : "Please enter a valid email address."
+                                        alert = !isEmailValid
+                                    }
+                                    .padding()
+                                    .frame(width: 300.0, height: 60.0)
+                                    .background(Color("textboxblue"))
+                                    .cornerRadius(8)
                             }
-                        }
-                    
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("• at least 1 uppercase letter and lowercase letter")
-                        Text("• at least 8 characters required")
-                        Text("• numbers and letters required")
-                    }
-                    //CSS
-                }
-                    
-                Button(action: {
-                    if matchingPsw && isEmailValid && isPasswordValid {
-                        FirebaseModel.shared.singUp(email: email, password: password) { result in
-                            switch result {
-                            case .success(let user):
-                                print("User signed up: \(user.email ?? "")")
-                                errorMsg = ""
-                                navigateToLogin = true
-                            case .failure(let error):
-                                errorMsg = error.localizedDescription
+                
+                            VStack(alignment: .center) {
+                                Text("Create a password")
+                                //CSS
+                                SecureField("Password", text: $password)
+                                    .onChange(of: password) { newValue in
+                                        isPasswordValid = isValidPassword(newValue)
+                                        alert = !isPasswordValid
+                                    }
+                                    .padding()
+                                    .frame(width: 300.0, height: 60.0)
+                                    .background(Color("textboxblue"))
+                                    .cornerRadius(8)
+                                
+                                SecureField("Confirm Password", text: $conPassword)
+                                    .onChange(of: conPassword) { newValue in
+                                        matchingPsw = isSimilarPsw(password,newValue)
+                                        if !matchingPsw {
+                                            errorMsg = "Password does not match"
+                                        } else {
+                                            errorMsg = ""
+                                        }
+                                    }
+                                    .padding()
+                                    .frame(width: 300.0, height: 60.0)
+                                    .background(Color("textboxblue"))
+                                    .cornerRadius(8)
+                                
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("• at least 1 uppercase letter and lowercase letter")
+                                    Text("• at least 8 characters required")
+                                    Text("• numbers and letters required")
+                                }
+                                //CSS
                             }
-                        }
-                    } else {
-                        errorMsg = "Please check your email, password, and confirmation password."
-                    }
-                }) {
-                    Image("water 2")
-                        .resizable()
-                        .frame(width: 79, height: 79)
-                    // CSS
-                }
+                                
+                            Button(action: {
+                                if matchingPsw && isEmailValid && isPasswordValid {
+                                    FirebaseModel.shared.singUp(email: email, password: password) { result in
+                                        switch result {
+                                        case .success(let user):
+                                            print("User signed up: \(user.email ?? "")")
+                                            errorMsg = ""
+                                            navigateToLogin = true
+                                        case .failure(let error):
+                                            errorMsg = error.localizedDescription
+                                        }
+                                    }
+                                } else {
+                                    errorMsg = "Please check your email, password, and confirmation password."
+                                }
+                            }) {
+                                Image("water 2")
+                                    .resizable()
+                                    .frame(width: 79, height: 79)
+                                // CSS
+                            }
 
-                NavigationLink(destination: LoginView(), isActive: $navigateToLogin) {
-                    EmptyView()
-                }
+                            NavigationLink(destination: LoginView(), isActive: $navigateToLogin) {
+                                EmptyView()
+                            }
+                        }
+                    )
+
             }
             .background(
                 Image("underwater")
