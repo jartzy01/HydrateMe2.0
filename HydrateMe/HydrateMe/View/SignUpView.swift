@@ -18,77 +18,96 @@ struct SignUpView: View {
     @State private var alert = false
     @State private var errorMsg = ""
     @State private var matchingPsw = false
+    
+    @State private var navigateToLogin = false
 
     var body: some View {
-        VStack(alignment: .center){
-            TextField("First Name", text: $firstName)
-            TextField("Last Name", text: $lastName)
-            
-            TextField("Email", text: $email)
-                .onChange(of: email) { newValue in
-                    isEmailValid = isValidEmail(newValue)
-                    errorMsg = isEmailValid ? "" : "Please enter a valid email address."
-                    alert = !isEmailValid
-                }
-            
-            SecureField("Password", text: $password)
-                .onChange(of: password) { newValue in
-                    isPasswordValid = isValidPassword(newValue)
-                    alert = !isPasswordValid
-                }
-            
-            SecureField("Confirme Password", text: $conPassword)
-                .onChange(of: conPassword) { newValue in
-                    matchingPsw = isSimilarPsw(password,newValue)
-                    if !matchingPsw {
-                        errorMsg = "Password does not match"
-                    } else {
-                        errorMsg = ""
-                    }
-                }
-            
-            
-            Button(action: {
-                if !matchingPsw && !email.isEmpty {
-                    print("Password does not match")
-                } else {
-                    FirebaseModel.shared.singUp(firstName: firstName,lastName: lastName, email: email, password: password) { result in
-                        switch result {
-                        case .success(let user):
-                            print("User signed up: \(user.email ?? "")")
-                            errorMsg = ""
-                        case .failure(let error):
-                            errorMsg = error.localizedDescription
+        NavigationView {
+            VStack(alignment: .center) {
+                
+                Text("Create Account")
+                //CSS
+                
+                VStack(alignment: .center){
+                    Text("Personal Information")
+                    //CSS
+                    TextField("First Name", text: $firstName)
+                    TextField("Last Name", text: $lastName)
+                    
+                    TextField("Email", text: $email)
+                        .onChange(of: email) { newValue in
+                            isEmailValid = isValidEmail(newValue)
+                            errorMsg = isEmailValid ? "" : "Please enter a valid email address."
+                            alert = !isEmailValid
                         }
-                    }
                 }
-            }) {
-                Text("Sign Up")
+    
+                VStack(alignment: .center) {
+                    Text("Create a password")
+                    //CSS
+                    SecureField("Password", text: $password)
+                        .onChange(of: password) { newValue in
+                            isPasswordValid = isValidPassword(newValue)
+                            alert = !isPasswordValid
+                        }
+                    
+                    SecureField("Confirm Password", text: $conPassword)
+                        .onChange(of: conPassword) { newValue in
+                            matchingPsw = isSimilarPsw(password,newValue)
+                            if !matchingPsw {
+                                errorMsg = "Password does not match"
+                            } else {
+                                errorMsg = ""
+                            }
+                        }
+                    
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("• at least 1 uppercase letter and lowercase letter")
+                        Text("• at least 8 characters required")
+                        Text("• numbers and letters required")
+                    }
+                    //CSS
+                }
+                    
+                Button(action: {
+                    if matchingPsw && isEmailValid && isPasswordValid {
+                        FirebaseModel.shared.singUp(firstName: firstName,lastName: lastName, email: email, password: password) { result in
+                            switch result {
+                            case .success(let user):
+                                print("User signed up: \(user.email ?? "")")
+                                errorMsg = ""
+                                navigateToLogin = true
+                            case .failure(let error):
+                                errorMsg = error.localizedDescription
+                            }
+                        }
+                    } else {
+                        errorMsg = "Please check your email, password, and confirmation password."
+                    }
+                }) {
+                    Image("water 2")
+                        .resizable()
+                        .frame(width: 79, height: 79)
+                    // CSS
+                }
+
+                NavigationLink(destination: LoginView(), isActive: $navigateToLogin) {
+                    EmptyView()
+                }
             }
-        
+            .background(
+                Image("underwater")
+                    .resizable()
+                    .edgesIgnoringSafeArea(.all)
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            )
         }
-        .background(
-            Image("underwater")
-                .resizable()
-                .edgesIgnoringSafeArea(.all)
-                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        )
     }
     
     private func isValidEmail(_ email: String) -> Bool {
-        let minLenght = 8
-        let regexLower = "(?=.*[a-z])"
-        let regexUpper = "(?=.*[A-Z])"
-        let regexDigit = "(?=.*\\d)"
-        
-        let predicateL = NSPredicate(format: "SELF MATCHES[c] %@", regexLower)
-        let predicateU = NSPredicate(format: "SELF MATCHES[c] %@", regexUpper)
-        let predicateD = NSPredicate(format: "SELF MATCHES[c] %@", regexDigit)
-        
-        return password.count >= minLenght &&
-        predicateD.evaluate(with: password) &&
-        predicateL.evaluate(with: password) &&
-        predicateU.evaluate(with: password)
+        let emailRegex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        let predicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        return predicate.evaluate(with: email)
     }
     
     private func getPasswordValidationError(_ password: String) -> String {
@@ -113,8 +132,7 @@ struct SignUpView: View {
     
     public func isValidPassword(_ password: String) -> Bool {
         let regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"
-        let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
-        return predicate.evaluate(with: password)
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: password)
     }
     
     public func isSimilarPsw(_ password: String,_ conPassword: String) -> Bool {
