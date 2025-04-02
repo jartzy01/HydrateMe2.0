@@ -10,25 +10,24 @@ import Foundation
 class Users{
     static var currentUserId = 0
     static var userNum = currentUserId / 100
-
+    private var fistName: String
+    private var lastName: String
     private var email: String
     private var userId: Int
-    private var name: String
     private var password: String
-    private var gender: String
     private var hydrationGoal: Double
     private var hydrationHistory: [HydrationRecord]
     private var rewards: [Rewards]
     private var reminders: [Reminders]
     
-    public init(name: String, email: String ,password: String, gender: String, hydrationGoal: Double) {
+    public init(firstName: String, lastName: String, email: String ,password: String) {
         Users.currentUserId += 100
         self.userId = Users.currentUserId
         self.email = email
-        self.name = name
+        self.fistName = firstName
+        self.lastName = lastName
         self.password = password
-        self.gender = gender
-        self.hydrationGoal = hydrationGoal
+        self.hydrationGoal = 0
         self.hydrationHistory = []
         self.rewards = []
         self.reminders = []
@@ -43,17 +42,26 @@ class Users{
         self.userId = Users.currentUserId
     }
     
-    public func getName() -> String {
-        return name
-    }
-    
-    public func setName(_ name: String) {
-        self.name = name
+    public func getFirstName() -> String {
+        return fistName
     }
 
+    public func setFirstName(_ firstName: String)  {
+        self.fistName = firstName
+    }
+    
+    public func getLastName() -> String {
+        return lastName
+    }
+
+    public func setLastName(_ lastName: String)  {
+        self.lastName = lastName
+    }
+    
     public func getEmail() -> String {
         return email
     }
+    
 
     public func setEmail(_ email: String) {
         self.email = email
@@ -62,17 +70,9 @@ class Users{
     public func getPassword() -> String {
         return password
     }
-    
+
     public func setPassword(_ password: String) {
         self.password = password
-    }
-    
-    public func getGender() -> String {
-        return gender
-    }
-    
-    public func setGender(_ gender: String) {
-        self.gender = gender
     }
     
     private func isValidPassword(_ password: String) -> Bool {
