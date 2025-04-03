@@ -33,7 +33,7 @@ struct Tab: View {
                 }
                 .padding(6)
             }
-            .frame(height: 70)
+            .frame(width: 380.0, height: 70)
             .background(Color("navbar-blue"))
             .cornerRadius(35)
             .padding(.horizontal, 26)
