@@ -20,6 +20,7 @@ struct MainView: View {
                         
                     }
                 )
+                .padding(.top, 30.0)
             Spacer()
                 .frame(height: 10.0)
             RoundedRectangle(cornerRadius: 40)
@@ -31,6 +32,7 @@ struct MainView: View {
                     }
                 )
                 .padding(.bottom, 50.0)
+            
         }
         .background(
             Image("underwater")
