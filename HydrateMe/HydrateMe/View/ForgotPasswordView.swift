@@ -57,7 +57,7 @@ struct ForgotPasswordView: View {
                             }
                             VStack(alignment: .center) {
                                 HStack{
-                                    Text("Create a password")
+                                    Text("Change password")
                                         .foregroundColor(Color("anotherblue 1"))
                                     Spacer()
                                         .frame(width: 150.0)
