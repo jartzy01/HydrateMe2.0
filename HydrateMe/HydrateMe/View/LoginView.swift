@@ -112,6 +112,10 @@ struct LoginView: View {
                             Spacer()
                                 .frame(height: 30.0)
                             
+                            NavigationLink(destination: MainView(), isActive: $isLoggedIn) {
+                                EmptyView()
+                            }
+                            
                             HStack{
                                 Text("Don't have an account?")
                                     .font(.system(size: 17))
