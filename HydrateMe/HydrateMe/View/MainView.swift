@@ -20,18 +20,18 @@ struct MainView: View {
                         
                     }
                 )
-                .padding(.top, 40.0)
+                .padding(.top, 30.0)
             Spacer()
-                .frame(height: 8.0)
+                .frame(height: 10.0)
             RoundedRectangle(cornerRadius: 40)
                 .foregroundColor(Color("navbar-blue"))
-                .frame(width: 380.0, height: 240.0)
+                .frame(width: 380.0, height: 250.0)
                 .overlay(
                     ZStack{
                         
                     }
                 )
-                .padding(.bottom, 70.0)
+                .padding(.bottom, 50.0)
             
         }
         .background(
