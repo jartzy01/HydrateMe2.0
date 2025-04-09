@@ -18,6 +18,8 @@ class FirebaseModel{
         FirebaseApp.configure()
     }
     
+    @Published var currentRecord: HydrationRecord?
+    
     private var auth: Auth {
         return Auth.auth()
     }
@@ -62,27 +64,61 @@ class FirebaseModel{
         }
     }
     
-    func addHydrationRecord(amount: Double, completion: @escaping (Result<Void, Error>) -> Void) {
+    func fetchLatestHydration(completion: @escaping (Result<Void, Error>) -> Void) {
         guard let userId = Auth.auth().currentUser?.uid else {
-            completion(.failure(NSError(domain: "No User logged In", code: 0)))
+            completion(.failure(NSError(domain: "No User Logged In", code: 0)))
             return
         }
         
-        let record = HydrationRecord(date: Date(), amountIntake: amount)
+        let query = db.collection("User")
+            .document(userId)
+            .collection("HydrationRecord")
+            .order(by: "date", descending: true)
+            .limit(to: 1)
         
-        let documentId = record.recordId
-        
-        let data: [String: Any] = [
+        query.getDocuments { snapshot, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let document = snapshot?.documents.first,
+                  let record = try? document.data(as: HydrationRecord.self) else {
+                completion(.failure(NSError(domain: "No Hydration Record Found", code: 1)))
+                return
+            }
+            
+            self.currentRecord = record
+            completion(.success(()))
+        }
+    }
+    
+    func increaseHydrationValue() {
+        currentRecord?.amountIntake += 10
+    }
+
+    func decreaseHydrationValue() {
+        currentRecord?.amountIntake -= 10
+    }
+    
+    func saveHydration(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let userId = Auth.auth().currentUser?.uid,
+              let record = currentRecord else {
+            completion(.failure(NSError(domain: "Missing Data", code: 1)))
+            return
+        }
+
+        let updatedData: [String: Any] = [
             "recordId": record.recordId,
-            "date": record.getDate,  // Use the public property or getter
-            "amountIntake": record.getAmountIntake
+            "date": record.getDate(),
+            "amountIntake": record.getAmountIntake()
         ]
-        
+
         db.collection("User")
             .document(userId)
             .collection("HydrationRecord")
-            .document(documentId)
-            .setData(data) { error in
+            .document(record.recordId)
+            .setData(updatedData) { error in
                 if let error = error {
                     completion(.failure(error))
                 } else {
@@ -90,90 +126,89 @@ class FirebaseModel{
                 }
             }
     }
-    
-    func increaseHydration(completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            completion(.failure(NSError(domain: "No User logged In", code: 0)))
-            return
-        }
-        
-        let hydrationQuery = db.collection("User")
-            .document(userId)
-            .collection("HydrationRecord")
-            .order(by: "date", descending: true)
-            .limit(to: 1)
-        
-        hydrationQuery.getDocuments { snapshot, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let document = snapshot?.documents.first else {
-                completion(.failure(NSError(domain: "No Hydration Record Found", code: 1)))
-                return
-            }
-            
-            var record = try?  document.data(as: HydrationRecord.self)
-            record?.amountIntake += 10
-            
-            let updatedData: [String: Any] = [
-                "recordId": record?.recordId ?? "",
-                "date": record?.getDate() ?? Date(),
-                "amountIntake": record?.getAmountIntake() ?? 0
-            ]
-            
-            document.reference.setData(updatedData) { error in
-                if let error = error {
-                    completion(.failure(error))
-                } else {
-                    completion(.success(()))
-                }
-            }
-        }
-    }
-    
-    func decreaseHydration(completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            completion(.failure(NSError(domain: "No User logged In", code: 0)))
-            return
-        }
-        
-        let hydrationRecordRef = db.collection("User")
-            .document(userId)
-            .collection("HydrationRecord")
-            .order(by: "date", descending: true)
-            .limit(to: 1)
-        
-        hydrationRecordRef.getDocuments() { snapshot, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let document = snapshot?.documents.first else {
-                completion(.failure(NSError(domain: "No Hydration Record Found", code: 1)))
-                return
-            }
-                    
-            var record = try? document.data(as: HydrationRecord.self)
-            record?.amountIntake -= 10
-                    
-            let updatedData: [String: Any] = [
-                "recordId": record?.recordId ?? "",
-                "date": record?.getDate() ?? Date(),
-                "amountIntake": record?.getAmountIntake() ?? 0
-            ]
-                    
-            document.reference.setData(updatedData) { error in
-                if let error = error {
-                    completion(.failure(error))
-                } else {
-                    completion(.success(()))
-                }
-            }
-        }
-    }
+//    func increaseHydration(completion: @escaping (Result<Void, Error>) -> Void) {
+//        guard let userId = Auth.auth().currentUser?.uid else {
+//            completion(.failure(NSError(domain: "No User logged In", code: 0)))
+//            return
+//        }
+//        
+//        let hydrationQuery = db.collection("User")
+//            .document(userId)
+//            .collection("HydrationRecord")
+//            .order(by: "date", descending: true)
+//            .limit(to: 1)
+//        
+//        hydrationQuery.getDocuments { snapshot, error in
+//            if let error = error {
+//                completion(.failure(error))
+//                return
+//            }
+//            
+//            guard let document = snapshot?.documents.first else {
+//                completion(.failure(NSError(domain: "No Hydration Record Found", code: 1)))
+//                return
+//            }
+//            
+//            var record = try?  document.data(as: HydrationRecord.self)
+//            record?.amountIntake += 10
+//            
+//            let updatedData: [String: Any] = [
+//                "recordId": record?.recordId ?? "",
+//                "date": record?.getDate() ?? Date(),
+//                "amountIntake": record?.getAmountIntake() ?? 0
+//            ]
+//            
+//            document.reference.setData(updatedData) { error in
+//                if let error = error {
+//                    completion(.failure(error))
+//                } else {
+//                    completion(.success(()))
+//                }
+//            }
+//        }
+//    }
+//    
+//    func decreaseHydration(completion: @escaping (Result<Void, Error>) -> Void) {
+//        guard let userId = Auth.auth().currentUser?.uid else {
+//            completion(.failure(NSError(domain: "No User logged In", code: 0)))
+//            return
+//        }
+//        
+//        let hydrationRecordRef = db.collection("User")
+//            .document(userId)
+//            .collection("HydrationRecord")
+//            .order(by: "date", descending: true)
+//            .limit(to: 1)
+//        
+//        hydrationRecordRef.getDocuments() { snapshot, error in
+//            if let error = error {
+//                completion(.failure(error))
+//                return
+//            }
+//            
+//            guard let document = snapshot?.documents.first else {
+//                completion(.failure(NSError(domain: "No Hydration Record Found", code: 1)))
+//                return
+//            }
+//                    
+//            var record = try? document.data(as: HydrationRecord.self)
+//            record?.amountIntake -= 10
+//                    
+//            let updatedData: [String: Any] = [
+//                "recordId": record?.recordId ?? "",
+//                "date": record?.getDate() ?? Date(),
+//                "amountIntake": record?.getAmountIntake() ?? 0
+//            ]
+//                    
+//            document.reference.setData(updatedData) { error in
+//                if let error = error {
+//                    completion(.failure(error))
+//                } else {
+//                    completion(.success(()))
+//                }
+//            }
+//        }
+//    }
     
     func observeUserChanges(uid: String, completion: @escaping (Result<DocumentSnapshot, Error>) -> Void) {
         db.collection("users").document(uid).addSnapshotListener { document, error in

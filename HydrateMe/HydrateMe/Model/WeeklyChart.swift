@@ -8,6 +8,4 @@
 import Foundation
 import Charts
 
-struct WeeklyChart: View {
-    @Environment(\.HydrationRecord)
-}
+

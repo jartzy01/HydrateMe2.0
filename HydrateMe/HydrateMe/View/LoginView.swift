@@ -97,6 +97,9 @@ struct LoginView: View {
                                         switch result {
                                         case .success(let user):
                                             print("User signed in: \(user.email ?? "")")
+                                            DispatchQueue.main.async {
+                                                isLoggedIn = true
+                                            }
                                         case .failure(let error):
                                             errorMsg = error.localizedDescription
                                         }
@@ -111,6 +114,10 @@ struct LoginView: View {
                             }
                             Spacer()
                                 .frame(height: 30.0)
+                            
+                            NavigationLink(destination: MainView(), isActive: $isLoggedIn){
+                                EmptyView()
+                            }
                             
                             HStack{
                                 Text("Don't have an account?")
