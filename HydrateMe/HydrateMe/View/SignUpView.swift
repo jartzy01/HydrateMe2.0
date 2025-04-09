@@ -119,7 +119,7 @@ struct SignUpView: View {
                             Spacer()
                             Button(action: {
                                 if matchingPsw && isEmailValid && isPasswordValid {
-                                    FirebaseModel.shared.singUp(email: email, password: password) { result in
+                                    FirebaseModel.shared.signUp(email: email, password: password, firstName: firstName, lastName: lastName) { result in
                                         switch result {
                                         case .success(let user):
                                             print("User signed up: \(user.email ?? "")")

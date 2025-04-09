@@ -28,12 +28,25 @@ class FirebaseModel{
         return Firestore.firestore()
     }
     
-    func singUp(email: String, password: String, completion: @escaping (Result<User, Error>) -> Void) {
+    func signUp(email: String, password: String, firstName: String, lastName: String, completion: @escaping (Result<User, Error>) -> Void) {
         auth.createUser(withEmail: email, password: password) { result, error in
             if let error = error {
                 completion(.failure(error))
             } else if let user = result?.user {
-                completion(.success(user))
+                let userData: [String: Any] = [
+                    "firstName": firstName,
+                    "lastName": lastName,
+                    "email": email
+                ]
+                
+                // Save to Firestore
+                self.db.collection("Users").document(user.uid).setData(userData) { error in
+                    if let error = error {
+                        completion(.failure(error))
+                    } else {
+                        completion(.success(user))
+                    }
+                }
             }
         }
     }
@@ -52,6 +65,28 @@ class FirebaseModel{
         try auth.signOut()
     }
     
+    func changePassword(email: String, newPassword: String, confirmPassword: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let currentUser = Auth.auth().currentUser else {
+            completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user is currently signed in."])))
+            return
+        }
+
+        // Verify passwords match
+        guard newPassword == confirmPassword else {
+            completion(.failure(NSError(domain: "", code: 2, userInfo: [NSLocalizedDescriptionKey: "Passwords do not match."])))
+            return
+        }
+
+        // Update password
+        currentUser.updatePassword(to: newPassword) { error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(()))
+            }
+        }
+    }
+    
     func fetchUserFromFirestore(uid: String, completion: @escaping (Result<DocumentSnapshot, Error>) -> Void) {
         db.collection("users").document(uid).getDocument() { document, error in
             if let error = error {
@@ -63,6 +98,39 @@ class FirebaseModel{
             }
         }
     }
+    
+//    func fetchUserDetails(uid: String, completion: @escaping (Result<UserDetails, Error>) -> Void) {
+//        let db = Firestore.firestore()
+//        
+//        // Fetch the user document from Firestore
+//        db.collection("users").document(uid).getDocument { document, error in
+//            if let error = error {
+//                completion(.failure(error))
+//                return
+//            }
+//            
+//            guard let document = document, document.exists else {
+//                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not found"])))
+//                return
+//            }
+//            
+//            // Try to decode the user details from the Firestore document
+//            do {
+//                if let data = document.data() {
+//                    let firstName = data["firstName"] as? String ?? "Unknown"
+//                    let lastName = data["lastName"] as? String ?? "Unknown"
+//                    let email = data["email"] as? String ?? "Unknown"
+//                    
+//                    let userDetails = UserDetails(firstName: firstName, lastName: lastName, email: email)
+//                    completion(.success(userDetails))
+//                } else {
+//                    completion(.failure(NSError(domain: "", code: -2, userInfo: [NSLocalizedDescriptionKey: "No data found for user"])))
+//                }
+//            } catch {
+//                completion(.failure(error))
+//            }
+//        }
+//    }
     
     func fetchLatestHydration(completion: @escaping (Result<Void, Error>) -> Void) {
         guard let userId = Auth.auth().currentUser?.uid else {
