@@ -4,88 +4,75 @@
 //
 //  Created by english on 2025-02-12.
 //
-
+import FirebaseFirestore
 import Foundation
 
-class Users{
-    static var currentUserId = 0
-    static var userNum = currentUserId / 100
-    private var fistName: String
-    private var lastName: String
-    private var email: String
-    private var userId: Int
-    private var password: String
-    private var hydrationGoal: Double
-    private var hydrationHistory: [HydrationRecord]
-    private var rewards: [Rewards]
-    private var reminders: [Reminders]
+class Users: ObservableObject, Identifiable, Codable {
+    @DocumentID var id: String? // Firebase document ID
+
+    @Published var firstName: String
+    @Published var lastName: String
+    @Published var email: String
+    @Published var password: String
+    @Published var hydrationGoal: Double
+    @Published var hydrationHistory: [HydrationRecord]
+//    @Published var rewards: [Rewards]
+//    @Published var reminders: [Reminders]
+
+    enum CodingKeys: String, CodingKey {
+        case firstName, lastName, email, password, hydrationGoal, hydrationHistory, rewards, reminders
+    }
     
-    public init(firstName: String, lastName: String, email: String ,password: String) {
-        Users.currentUserId += 100
-        self.userId = Users.currentUserId
-        self.email = email
-        self.fistName = firstName
+    init(firstName: String, lastName: String, email: String, password: String) {
+        self.firstName = firstName
         self.lastName = lastName
+        self.email = email
         self.password = password
         self.hydrationGoal = 0
         self.hydrationHistory = []
-        self.rewards = []
-        self.reminders = []
+//        self.rewards = []
+//        self.reminders = []
     }
     
-    public func getUserId() -> Int {
-        return userId
-    }
-    
-    public func setUserId(_ userId: Int) {
-        Users.currentUserId += 100
-        self.userId = Users.currentUserId
-    }
-    
-    public func getFirstName() -> String {
-        return fistName
+    // Decode from Firestore
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.firstName = try container.decode(String.self, forKey: .firstName)
+        self.lastName = try container.decode(String.self, forKey: .lastName)
+        self.email = try container.decode(String.self, forKey: .email)
+        self.password = try container.decode(String.self, forKey: .password)
+        self.hydrationGoal = try container.decode(Double.self, forKey: .hydrationGoal)
+        self.hydrationHistory = try container.decodeIfPresent([HydrationRecord].self, forKey: .hydrationHistory) ?? []
+        //self.rewards = try container.decodeIfPresent([Rewards].self, forKey: .rewards) ?? []
+        //self.reminders = try container.decodeIfPresent([Reminders].self, forKey: .reminders) ?? []
     }
 
-    public func setFirstName(_ firstName: String)  {
-        self.fistName = firstName
-    }
-    
-    public func getLastName() -> String {
-        return lastName
+    // Encode to Firestore
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(firstName, forKey: .firstName)
+        try container.encode(lastName, forKey: .lastName)
+        try container.encode(email, forKey: .email)
+        try container.encode(password, forKey: .password)
+        try container.encode(hydrationGoal, forKey: .hydrationGoal)
+        try container.encode(hydrationHistory, forKey: .hydrationHistory)
+//        try container.encode(rewards, forKey: .rewards)
+//        try container.encode(reminders, forKey: .reminders)
     }
 
-    public func setLastName(_ lastName: String)  {
-        self.lastName = lastName
-    }
-    
-    public func getEmail() -> String {
-        return email
-    }
-    
-
-    public func setEmail(_ email: String) {
-        self.email = email
-    }
-    
-    public func getPassword() -> String {
-        return password
-    }
-
-    public func setPassword(_ password: String) {
-        self.password = password
-    }
-    
-    private func isValidPassword(_ password: String) -> Bool {
+    // MARK: - Validation
+    func isValidPassword() -> Bool {
         let regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"
-        let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
-        return predicate.evaluate(with: password)
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: password)
     }
 
-    private func isValidEmail(_ email: String) -> Bool {
+    func isValidEmail() -> Bool {
         let regex = #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
-        let predicate = NSPredicate(format: "SELF MATCHES[c] %@", regex)
-        return predicate.evaluate(with: email)
+        return NSPredicate(format: "SELF MATCHES[c] %@", regex).evaluate(with: email)
     }
+    
     
     public func addRewards(){
         
