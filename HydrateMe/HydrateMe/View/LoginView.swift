@@ -115,7 +115,7 @@ struct LoginView: View {
                             Spacer()
                                 .frame(height: 30.0)
                             
-                            NavigationLink(destination: MainView(), isActive: $isLoggedIn){
+                            NavigationLink(destination: Tab(), isActive: $isLoggedIn){
                                 EmptyView()
                             }
                             

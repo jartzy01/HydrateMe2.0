@@ -7,21 +7,20 @@
 import FirebaseFirestore
 import Foundation
 
-class Users: ObservableObject, Identifiable, Codable {
-    @DocumentID var id: String? // Firebase document ID
+struct Users: Identifiable, Codable {
+    @DocumentID var id: String?
 
-    @Published var firstName: String
-    @Published var lastName: String
-    @Published var email: String
-    @Published var password: String
-    @Published var hydrationGoal: Double
-    @Published var hydrationHistory: [HydrationRecord]
-//    @Published var rewards: [Rewards]
-//    @Published var reminders: [Reminders]
+    var firstName: String
+    var lastName: String
+    var email: String
+    var password: String
+    var hydrationGoal: Double
+    var hydrationHistory: [HydrationRecord]?
 
-    enum CodingKeys: String, CodingKey {
-        case firstName, lastName, email, password, hydrationGoal, hydrationHistory, rewards, reminders
-    }
+
+    //enum CodingKeys: String, CodingKey {
+     //   case firstName, lastName, email, password, hydrationGoal, hydrationHistory, rewards, reminders
+    //}
     
     init(firstName: String, lastName: String, email: String, password: String) {
         self.firstName = firstName
@@ -35,32 +34,32 @@ class Users: ObservableObject, Identifiable, Codable {
     }
     
     // Decode from Firestore
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
+    //required init(from decoder: Decoder) throws {
+        //let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        self.firstName = try container.decode(String.self, forKey: .firstName)
-        self.lastName = try container.decode(String.self, forKey: .lastName)
-        self.email = try container.decode(String.self, forKey: .email)
-        self.password = try container.decode(String.self, forKey: .password)
-        self.hydrationGoal = try container.decode(Double.self, forKey: .hydrationGoal)
-        self.hydrationHistory = try container.decodeIfPresent([HydrationRecord].self, forKey: .hydrationHistory) ?? []
+        //self.firstName = try container.decode(String.self, forKey: .firstName)
+        //self.lastName = try container.decode(String.self, forKey: .lastName)
+        //self.email = try container.decode(String.self, forKey: .email)
+        //self.password = try container.decode(String.self, forKey: .password)
+        //self.hydrationGoal = try container.decode(Double.self, forKey: .hydrationGoal)
+        //self.hydrationHistory = try container.decodeIfPresent([HydrationRecord].self, forKey: .hydrationHistory) ?? []
         //self.rewards = try container.decodeIfPresent([Rewards].self, forKey: .rewards) ?? []
         //self.reminders = try container.decodeIfPresent([Reminders].self, forKey: .reminders) ?? []
-    }
+    //}
 
     // Encode to Firestore
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+    //func encode(to encoder: Encoder) throws {
+        //var container = encoder.container(keyedBy: CodingKeys.self)
 
-        try container.encode(firstName, forKey: .firstName)
-        try container.encode(lastName, forKey: .lastName)
-        try container.encode(email, forKey: .email)
-        try container.encode(password, forKey: .password)
-        try container.encode(hydrationGoal, forKey: .hydrationGoal)
-        try container.encode(hydrationHistory, forKey: .hydrationHistory)
-//        try container.encode(rewards, forKey: .rewards)
-//        try container.encode(reminders, forKey: .reminders)
-    }
+        //try container.encode(firstName, forKey: .firstName)
+        //try container.encode(lastName, forKey: .lastName)
+        //try container.encode(email, forKey: .email)
+        //try container.encode(password, forKey: .password)
+        //try container.encode(hydrationGoal, forKey: .hydrationGoal)
+        //try container.encode(hydrationHistory, forKey: .hydrationHistory)
+        //try container.encode(rewards, forKey: .rewards)
+        //try container.encode(reminders, forKey: .reminders)
+    //}
 
     // MARK: - Validation
     func isValidPassword() -> Bool {

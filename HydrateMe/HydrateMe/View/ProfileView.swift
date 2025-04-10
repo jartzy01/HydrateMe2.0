@@ -20,6 +20,7 @@ struct ProfileView: View {
     @State private var alert = false
     @State private var errorMsg = ""
     @State private var matchingPsw = false
+    @State private var hydrationGoal = ""
     
     @State var isProfileExpanded: Bool = false
     @State var isPasswordExpanded: Bool = false
@@ -30,154 +31,48 @@ struct ProfileView: View {
     
     var body: some View {
         NavigationView {
-            VStack(alignment: .center){
-                RoundedRectangle(cornerRadius: 40)
-                    .foregroundColor(Color("navbar-blue"))
-                    .frame(width: 380.0, height: 450.0
-                    )
-                    .overlay(
-                        VStack{
-                            ScrollView{
-                                VStack{
-                                    DisclosureGroup("Profile", isExpanded: $isProfileExpanded) {
-                                        VStack(alignment: .leading) {
-                                            VStack(alignment: .center){
-                                                TextField("First Name", text: $firstName)
-                                                    .onChange(of: firstName) { newValue in
-                                                        viewModel.updateField("firstName", value: newValue, uid: uid)
-                                                    }
-                                                    .padding()
-                                                    .frame(width: 300.0, height: 60.0)
-                                                    .background(Color("textboxblue"))
-                                                    .cornerRadius(8)
-                                                
-                                                TextField("Last Name", text: $lastName)
-                                                    .onChange(of: lastName) { newValue in
-                                                        viewModel.updateField("lastName", value: newValue, uid: uid)
-                                                    }
-                                                    .padding()
-                                                    .frame(width: 300.0, height: 60.0)
-                                                    .background(Color("textboxblue"))
-                                                    .cornerRadius(8)
-                                                
-                                                TextField("Email", text: $email)
-                                                    .onChange(of: email) { newValue in
-                                                        isEmailValid = isValidEmail(newValue)
-                                                        errorMsg = isEmailValid ? "" : "Please enter a valid email address."
-                                                        alert = !isEmailValid
-                                                        if isEmailValid {
-                                                            viewModel.updateField("email", value: newValue, uid: uid)
-                                                        }
-                                                    }
-                                                    .padding()
-                                                    .frame(width: 300.0, height: 60.0)
-                                                    .background(Color("textboxblue"))
-                                                    .cornerRadius(8)
-                                            }
-                                            
-                                        }
-                                        .padding(.leading)
-                                    }
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundStyle(.black)
-                                    .frame(maxWidth: 350)
-                                    
-                                    Divider()
-                                    
-                                    DisclosureGroup("change Password", isExpanded: $isPasswordExpanded) {
-                                        VStack(alignment: .leading) {
-                                            SecureField("Password", text: $password)
-                                                .onChange(of: password) { newValue in
-                                                    isPasswordValid = isValidPassword(newValue)
-                                                    alert = !isPasswordValid
-                                                }
-                                                .padding()
-                                                .frame(width: 300.0, height: 60.0)
-                                                .background(Color("textboxblue"))
-                                                .cornerRadius(8)
-                                            
-                                            SecureField("Confirm Password", text: $conPassword)
-                                                .onChange(of: conPassword) { newValue in
-                                                    matchingPsw = isSimilarPsw(password,newValue)
-                                                    if !matchingPsw {
-                                                        errorMsg = "Password does not match"
-                                                    } else {
-                                                        errorMsg = ""
-                                                    }
-                                                }
-                                                .padding()
-                                                .frame(width: 300.0, height: 60.0)
-                                                .background(Color("textboxblue"))
-                                                .cornerRadius(8)
-                                            
-                                            VStack(alignment: .leading, spacing: 5) {
-                                                Text("• at least 1 uppercase letter")
-                                                    .foregroundColor(.white)
-                                                Text("and 1 lowercase letter.")
-                                                    .padding(.leading, 11.0)
-                                                    .foregroundColor(.white)
-                                                Text("• at least 8 characters required.")
-                                                    .foregroundColor(.white)
-                                                Text("• numbers and letters required.")
-                                                    .foregroundColor(.white)
-                                            }
-                                            //CSS
-                                        }
-                                        .padding(.leading)
-                                    }
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundStyle(.black)
-                                    .frame(maxWidth: 350)
-                                    
-                                    Divider()
-                                    
-                                    DisclosureGroup("Hydration goal", isExpanded: $isHydrationExpanded) {
-                                        VStack(alignment: .leading) {
-                                            
-                                        }
-                                        .padding(.leading)
-                                    }
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundStyle(.black)
-                                    .frame(maxWidth: 350)
-                                    
-                                }
-                                .padding(.top, 40.0)
-                            }
-                        }
-                    )
-                    .padding(.top, 40.0)
-                Spacer()
-                    .frame(height: 8.0)
-                RoundedRectangle(cornerRadius: 40)
-                    .foregroundColor(Color("navbar-blue"))
-                    .frame(width: 380.0, height: 240.0)
-                    .overlay(
-                        VStack{
-                            Text("Notifications")
-                            Divider()
-                            ScrollView{
-                                
-                            }
-                        }
-                    )
-                    .padding(.bottom, 70.0)
-                
-            }
+            ProfileContentView(
+                uid: $uid,
+                firstName: $firstName,
+                lastName: $lastName,
+                email: $email,
+                hydrationGoal: $hydrationGoal,
+                isProfileExpanded: $isProfileExpanded,
+                isPasswordExpanded: $isPasswordExpanded,
+                isHydrationExpanded: $isHydrationExpanded,
+                isEmailValid: $isEmailValid,
+                alert: $alert,
+                errorMsg: $errorMsg,
+                password: $password,
+                conPassword: $conPassword,
+                isPasswordValid: $isPasswordValid,
+                matchingPsw: $matchingPsw,
+                isValidEmail: isValidEmail,
+                isValidPassword: isValidPassword,
+                isSimilarPsw: isSimilarPsw,
+                viewModel: viewModel
+            )
+
+
+
             .background(
                 Image("underwater")
                     .resizable()
                     .edgesIgnoringSafeArea(.all)
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
             )
-        }.onAppear {
-            if let currentUser = Auth.auth().currentUser {
-                uid = currentUser.uid
-                viewModel.fetchUserInfo(uid: currentUser.uid)
+            .onAppear {
+                if let currentUser = Auth.auth().currentUser {
+                    uid = currentUser.uid
+                    viewModel.fetchUserInfo(uid: uid)
+                } else {
+                    errorMsg = "User not logged in"
+                    alert = true
+                }
             }
         }
-
     }
+
     private func isValidEmail(_ email: String) -> Bool {
         let emailRegex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
         let predicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)

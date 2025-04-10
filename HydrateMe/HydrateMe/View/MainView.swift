@@ -18,7 +18,7 @@ struct MainView: View {
     @State private var alert = false
     @State private var hydrationHistory: [HydrationRecord] = []
 
-    @StateObject private var currentRecord = HydrationRecord(recordId: UUID().uuidString, date: Date(), amountIntake: 0)
+    @StateObject private var currentRecord = HydrationRecord(recordId: UUID().uuidString, date: Date(), amountIntake: 250)
     @StateObject private var viewModel = MainViewModel(record: HydrationRecord(recordId: UUID().uuidString, date: Date(), amountIntake: 0))
     var body: some View {
         
@@ -31,10 +31,10 @@ struct MainView: View {
                     VStack(alignment: .center){
                         Spacer()
                             .frame(height: 200)
-                        Text("\(viewModel.record.amountIntake)")
-                            .font(.system(size: 30))
+                        Text("\(Int(viewModel.record.amountIntake))")
+                            .font(.system(size: 50))
                             .foregroundStyle(Color("textcolor"))
-                        Text("/2000")
+                        Text("/ 2000")
                             .font(.system(size: 30))
                             .foregroundStyle(Color("textcolor"))
                         Spacer()
@@ -128,7 +128,7 @@ struct MainView: View {
                            }
                            .padding()
                 )
-                .padding(.bottom, 70.0)
+                .padding(.bottom, 80.0)
             
         }
         .background(

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FirebaseFirestore
+import FirebaseDatabase
 
 class ProfileViewModel: ObservableObject {
     @Published var user: Users?
@@ -15,42 +15,44 @@ class ProfileViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var errorMsg = ""
     @Published var alert = false
-    
-    private var db = Firestore.firestore()
-    private var listener: ListenerRegistration?
-    
+
+    private var db = Database.database().reference()
+
     func fetchUserInfo(uid: String) {
-        listener = db.collection("Users").document(uid).addSnapshotListener { documentSnapshot, error in
-            if let error = error {
-                self.errorMsg = error.localizedDescription
-                self.alert = true
+        db.child("Users").child(uid).observeSingleEvent(of: .value) { snapshot in
+            guard let data = snapshot.value as? [String: Any] else {
+                DispatchQueue.main.async {
+                    self.errorMsg = "User profile does not exist."
+                    self.alert = true
+                }
                 return
             }
-            
-            do {
-                if let user = try documentSnapshot?.data(as: Users.self) {
-                    self.user = user
-                    self.firstName = user.firstName
-                    self.lastName = user.lastName
-                    self.email = user.email
-                }
-            } catch {
-                self.errorMsg = "Failed to decode user data"
-                self.alert = true
+            DispatchQueue.main.async {
+                self.firstName = data["firstName"] as? String ?? ""
+                self.lastName = data["lastName"] as? String ?? ""
+                self.email = data["email"] as? String ?? ""
             }
-        }
-    }
-    
-    func updateField(_ field: String, value: String, uid: String) {
-        db.collection("Users").document(uid).updateData([field: value]) { error in
-            if let error = error {
+        } withCancel: { error in
+            DispatchQueue.main.async {
                 self.errorMsg = error.localizedDescription
                 self.alert = true
             }
         }
     }
-    
-    deinit {
-        listener?.remove()
+
+    func updateField(_ field: String, value: Any, uid: String) {
+        guard !uid.isEmpty else {
+            print("UID is empty — skipping update for field: \(field)")
+            return
+        }
+
+        db.child("Users").child(uid).child(field).setValue(value) { error, _ in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self.errorMsg = error.localizedDescription
+                    self.alert = true
+                }
+            }
+        }
     }
 }
