@@ -176,10 +176,11 @@ class FirebaseModel{
             return
         }
 
+        // Directly access properties instead of using getter methods
         let updatedData: [String: Any] = [
             "recordId": record.recordId,
-            "date": record.getDate(),
-            "amountIntake": record.getAmountIntake()
+            "date": record.date,  // Access date directly
+            "amountIntake": record.amountIntake  // Access amountIntake directly
         ]
 
         db.collection("User")

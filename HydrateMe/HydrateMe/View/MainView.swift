@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct MainView: View {
     @State private var email = ""
@@ -15,6 +16,8 @@ struct MainView: View {
     @State private var isLoggedIn = false
     @State private var errorMsg = ""
     @State private var alert = false
+    
+    @StateObject private var currentRecord = HydrationRecord(recordId: UUID().uuidString, date: Date(), amountIntake: 0)
     var body: some View {
         
         VStack(alignment: .center){
@@ -55,46 +58,26 @@ struct MainView: View {
                                     .frame(width: 220.0, height: 80.0)
                                     .overlay(
                                         VStack{
-                                            Text("250 ml")
+                                            Text(currentRecord.amountIntake, format: .number)
                                                 .font(.system(size: 24))
                                                 .foregroundStyle(Color("textcolor"))
+                                                
                                         }
                                     )
                             }
-                            VStack{
-                                //increase
+                            VStack {
+                                // Increase button
                                 Button(action: {
-                                    if isPasswordValid && isEmailValid {
-                                        FirebaseModel.shared.signIn(email: email, password: password) { result in
-                                            switch result {
-                                            case .success(let user):
-                                                print("User signed in: \(user.email ?? "")")
-                                            case .failure(let error):
-                                                errorMsg = error.localizedDescription
-                                            }
-                                        }
-                                    } else {
-                                        errorMsg = "Please enter both email and password"
-                                    }
+                                    currentRecord.amountIntake += 10
                                 }) {
                                     Image(systemName: "arrowtriangle.up.fill")
                                         .resizable()
                                         .frame(width: 25, height: 25)
                                 }
-                                //Decrease
+
+                                // Decrease button
                                 Button(action: {
-                                    if isPasswordValid && isEmailValid {
-                                        FirebaseModel.shared.signIn(email: email, password: password) { result in
-                                            switch result {
-                                            case .success(let user):
-                                                print("User signed in: \(user.email ?? "")")
-                                            case .failure(let error):
-                                                errorMsg = error.localizedDescription
-                                            }
-                                        }
-                                    } else {
-                                        errorMsg = "Please enter both email and password"
-                                    }
+                                    currentRecord.amountIntake = max(0, currentRecord.amountIntake - 10)
                                 }) {
                                     Image(systemName: "arrowtriangle.down.fill")
                                         .resizable()
@@ -103,6 +86,7 @@ struct MainView: View {
                             }
                             
                         }
+                        
                         Spacer()
                     }
                 )
